@@ -13,7 +13,9 @@ const PageContent = () => {
         ];
 
     if (!pageContent) {
-        return <div>Страница не найдена</div>;
+        return (
+            <div>{siteConfig.routingInfo.notFoundPage}</div>
+        );
     }
 
     const cleanHTML = DOMPurify.sanitize(

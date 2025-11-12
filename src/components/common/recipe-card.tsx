@@ -14,6 +14,7 @@ import Image from 'next/image';
 import { useRecipeStore } from '@/store/recipe';
 import { useAuthStore } from '@/store/auth';
 import { UNIT_ABBREVIATIONS } from '@/constants/select-options';
+import { siteConfig } from '@/config/site.config';
 
 interface IRecipeCardProps {
     recipe: IRecipe;
@@ -31,7 +32,7 @@ const RecipeCard = (props: IRecipeCardProps) => {
                 await removeRecipe(recipe.id);
             } catch (error) {
                 console.error(
-                    'Ошибка при удалении рецепта:',
+                    siteConfig.errors.recipe.delete,
                     error,
                 );
             }
@@ -75,7 +76,7 @@ const RecipeCard = (props: IRecipeCardProps) => {
             </CardHeader>
 
             <CardBody className="flex-1 text-black">
-                <p className="text-gray-600 line-clamp-6 mb-4">
+                <p className="text-gray-600 line-clamp-6 overflow-hidden text-ellipsis whitespace-nowrap min-h-[25px] max-h-[30px]">
                     {recipe.description || 'Без описания'}
                 </p>
                 <h3 className="mt-4 font-semibold">

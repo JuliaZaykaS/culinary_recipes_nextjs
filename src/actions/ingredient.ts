@@ -1,5 +1,6 @@
 'use server';
 
+import { siteConfig } from '@/config/site.config';
 import { ingredientsSchema } from '@/schema/zod';
 import prisma from '@/utils/prisma';
 import { ZodError } from 'zod';
@@ -42,8 +43,13 @@ export async function createIngredient(formData: FormData) {
                     .join(', '),
             };
         }
-        console.error('Ошибка создания ингредиента', error);
-        return { error: 'Ошибка при создании ингредиента' };
+        console.error(
+            siteConfig.errors.ingredient.create,
+            error,
+        );
+        return {
+            error: siteConfig.errors.ingredient.create,
+        };
     }
 }
 
@@ -54,11 +60,11 @@ export async function getIngredients() {
         return { success: true, ingredients };
     } catch (error) {
         console.error(
-            'Ошибка получения ингредиентов',
+            siteConfig.errors.ingredient.loading,
             error,
         );
         return {
-            error: 'Ошибка при получении ингредиентов',
+            error: siteConfig.errors.ingredient.loading,
         };
     }
 }
@@ -71,9 +77,12 @@ export async function deleteIngredient(id: string) {
 
         return { success: true, ingredient };
     } catch (error) {
-        console.error('Ошибка удаления ингредиента', error);
+        console.error(
+            siteConfig.errors.ingredient.delete,
+            error,
+        );
         return {
-            error: 'Ошибка при удалении ингредиента',
+            error: siteConfig.errors.ingredient.delete,
         };
     }
 }
