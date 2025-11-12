@@ -1,5 +1,6 @@
 'use server';
 
+import { siteConfig } from '@/config/site.config';
 import prisma from '@/utils/prisma';
 
 export async function getRecipes() {
@@ -17,10 +18,13 @@ export async function getRecipes() {
 
         return { success: true, recipes };
     } catch (error) {
-        console.error('Ошибка загрузки рецептов', error);
+        console.error(
+            siteConfig.errors.recipe.loading,
+            error,
+        );
         return {
             success: false,
-            error: 'Ошибка при загрузке рецептов',
+            error: siteConfig.errors.recipe.loading,
         };
     }
 }
@@ -49,7 +53,8 @@ export async function createRecipe(formData: FormData) {
         if (!name || ingredients.length === 0) {
             return {
                 success: false,
-                error: 'Имя и хотя бы один ингредиент обязательны',
+                error: siteConfig.errors.recipe
+                    .requiredFields,
             };
         }
 
@@ -84,10 +89,13 @@ export async function createRecipe(formData: FormData) {
 
         return { success: true, recipe };
     } catch (error) {
-        console.error('Ошибка создания рецепта', error);
+        console.error(
+            siteConfig.errors.recipe.create,
+            error,
+        );
         return {
             success: false,
-            error: 'Ошибка при создании рецепта',
+            error: siteConfig.errors.recipe.create,
         };
     }
 }
@@ -119,7 +127,8 @@ export async function updateRecipe(
         if (!name || ingredients.length === 0) {
             return {
                 success: false,
-                error: 'Имя и хотя бы один ингредиент обязательны',
+                error: siteConfig.errors.recipe
+                    .requiredFields,
             };
         }
 
@@ -154,10 +163,13 @@ export async function updateRecipe(
 
         return { success: true, recipe };
     } catch (error) {
-        console.error('Ошибка обновления рецепта', error);
+        console.error(
+            siteConfig.errors.recipe.update,
+            error,
+        );
         return {
             success: false,
-            error: 'Ошибка при обновлении рецепта',
+            error: siteConfig.errors.recipe.update,
         };
     }
 }
@@ -175,10 +187,13 @@ export async function deleteRecipe(id: string) {
 
         return { success: true };
     } catch (error) {
-        console.error('Ошибка удаления рецепта', error);
+        console.error(
+            siteConfig.errors.recipe.delete,
+            error,
+        );
         return {
             success: false,
-            error: 'Ошибка при удалении рецепта',
+            error: siteConfig.errors.recipe.delete,
         };
     }
 }

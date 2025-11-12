@@ -4,6 +4,7 @@ import {
     getRecipes,
     updateRecipe,
 } from '@/actions/recipe';
+import { siteConfig } from '@/config/site.config';
 import { IRecipe } from '@/types/recipe';
 import { create } from 'zustand';
 
@@ -49,10 +50,13 @@ export const useRecipeStore = create<IRecipeState>(
                     });
                 }
             } catch (error) {
-                console.error('error', error);
+                console.error(
+                    siteConfig.errors.recipe.loading,
+                    error,
+                );
                 set({
                     isLoading: false,
-                    error: 'Ошибка при загрузке рецептов',
+                    error: siteConfig.errors.recipe.loading,
                 });
             }
         },
@@ -83,14 +87,17 @@ export const useRecipeStore = create<IRecipeState>(
                     };
                 }
             } catch (error) {
-                console.error('error', error);
+                console.error(
+                    siteConfig.errors.recipe.create,
+                    error,
+                );
                 set({
                     isLoading: false,
-                    error: 'Ошибка при добавлении рецепта',
+                    error: siteConfig.errors.recipe.create,
                 });
                 return {
                     success: false,
-                    error: 'Ошибка при добавлении рецепта',
+                    error: siteConfig.errors.recipe.create,
                 };
             }
         },
@@ -129,14 +136,17 @@ export const useRecipeStore = create<IRecipeState>(
                     };
                 }
             } catch (error) {
-                console.error('error', error);
+                console.error(
+                    siteConfig.errors.recipe.update,
+                    error,
+                );
                 set({
                     isLoading: false,
-                    error: 'Ошибка при обновлении рецепта',
+                    error: siteConfig.errors.recipe.update,
                 });
                 return {
                     success: false,
-                    error: 'Ошибка при обновлении рецепта',
+                    error: siteConfig.errors.recipe.update,
                 };
             }
         },
@@ -158,10 +168,13 @@ export const useRecipeStore = create<IRecipeState>(
                     });
                 }
             } catch (error) {
-                console.error('error', error);
+                console.error(
+                    siteConfig.errors.recipe.delete,
+                    error,
+                );
                 set({
                     isLoading: false,
-                    error: 'Ошибка при удалении рецепта',
+                    error: siteConfig.errors.recipe.delete,
                 });
             }
         },

@@ -4,7 +4,7 @@ import { IFormData } from '@/types/form-data';
 
 import { Form } from '@heroui/form';
 import { Input } from '@heroui/input';
-import { Button } from '@heroui/react';
+import { addToast, Button } from '@heroui/react';
 import { FormEvent, useState } from 'react';
 
 interface IRegistrationFormProps {
@@ -29,7 +29,21 @@ const RegistrationForm = (
     const handleSubmit = async (e: FormEvent) => {
         e.preventDefault();
 
-        await registerUser(formData);
+        const result = await registerUser(formData);
+
+        if (result.hasOwnProperty('error')) {
+            addToast({
+                title: 'Упс...',
+                description: 'Ошибка при регистрации',
+                color: 'danger',
+            });
+        } else {
+            addToast({
+                title: 'Ура!!!',
+                description: 'Регистрация прошла успешно.',
+                color: 'success',
+            });
+        }
 
         onClose();
     };

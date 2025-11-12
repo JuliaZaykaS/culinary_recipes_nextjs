@@ -1,23 +1,29 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getToken } from 'next-auth/jwt';
+import { getToken, GetTokenParams } from 'next-auth/jwt';
+import { PROTECTED_ROUTES } from './constants/routes';
+import { siteConfig } from './config/site.config';
 
-export async function middleware(request: NextRequest) {
-    // export async function proxy(request: NextRequest) {
+export async function proxy(request: NextRequest) {
     const { pathname } = request.nextUrl;
-    // извлекаем токен из куки и расшифровываем его, проверяем срок действия
-    const token = await getToken({
+
+    let params: GetTokenParams = {
         req: request,
         secret: process.env.AUTH_SECRET ?? 'secret',
-    });
-    // создаем массив защищенных путей
-    const protectedRoutes = [
-        '/ingredients',
-        '/recipes/new',
-        '/recipes/:path*',
-    ];
+    };
+
+    if (process.env.NODE_ENV === 'production') {
+        params = {
+            ...params,
+            cookieName: '_Secure-authjs.session-token',
+        };
+    }
+
+    // извлекаем токен из куки и расшифровываем его, проверяем срок действия
+    const token = await getToken(params);
+
     // проверяем, является ли запрашиваемый путь защищенным
     if (
-        protectedRoutes.some((route) =>
+        PROTECTED_ROUTES.some((route) =>
             pathname.startsWith(
                 route.replace(':path*', ''),
             ),
@@ -29,7 +35,7 @@ export async function middleware(request: NextRequest) {
             const url = new URL('/error', request.url);
             url.searchParams.set(
                 'message',
-                'Недостаточно прав',
+                siteConfig.routingInfo.insufficientRights,
             );
 
             return NextResponse.redirect(url);
@@ -39,7 +45,6 @@ export async function middleware(request: NextRequest) {
 }
 
 // конфигурация middleware
-
 export const config = {
     matcher: [
         '/ingredients',

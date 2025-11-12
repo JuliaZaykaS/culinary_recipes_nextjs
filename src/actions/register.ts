@@ -1,5 +1,6 @@
 'use server';
 
+import { siteConfig } from '@/config/site.config';
 import { IFormData } from '@/types/form-data';
 import { saltAndHashPassword } from '@/utils/password';
 import prisma from '@/utils/prisma';
@@ -7,12 +8,15 @@ import prisma from '@/utils/prisma';
 export async function registerUser(formData: IFormData) {
     const { email, password, confirmPassword } = formData;
     if (password !== confirmPassword) {
-        return { error: 'Пароли не совпадают' };
+        return {
+            error: siteConfig.errors.user.noMatchPassword,
+        };
     }
 
     if (password.length < 6) {
         return {
-            error: 'Пароль должен быть не меньше 6 символов',
+            error: siteConfig.errors.user
+                .inappropriateLength,
         };
     }
 
@@ -23,7 +27,7 @@ export async function registerUser(formData: IFormData) {
 
         if (existingUser) {
             return {
-                error: 'Пользователь с таким email уже существует',
+                error: siteConfig.errors.user.emailExists,
             };
         }
 
@@ -36,7 +40,7 @@ export async function registerUser(formData: IFormData) {
         });
         return user;
     } catch (error) {
-        console.error('Ошибка регистрации', error);
-        return { error: 'Ошибка при регистрации' };
+        console.error(siteConfig.errors.user.signIn, error);
+        return { error: siteConfig.errors.user.signIn };
     }
 }
