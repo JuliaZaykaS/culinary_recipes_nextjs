@@ -14,7 +14,7 @@ export async function proxy(request: NextRequest) {
     if (process.env.NODE_ENV === 'production') {
         params = {
             ...params,
-            cookieName: '_Secure-authjs.session-token',
+            cookieName: '__Secure-authjs.session-token',
         };
     }
 
