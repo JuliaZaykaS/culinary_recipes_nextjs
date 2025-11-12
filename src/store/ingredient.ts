@@ -3,6 +3,7 @@ import {
     deleteIngredient,
     getIngredients,
 } from '@/actions/ingredient';
+import { siteConfig } from '@/config/site.config';
 import { IIngredient } from '@/types/ingredient';
 import { create } from 'zustand';
 
@@ -36,9 +37,15 @@ export const useIngredientStore = create<IIngredientState>(
                     });
                 }
             } catch (error) {
+                console.error(
+                    siteConfig.errors.ingredient.loading,
+                    error,
+                );
+
                 set({
                     isLoading: false,
-                    error: 'Ошибка при загрузке ингредиентов',
+                    error: siteConfig.errors.ingredient
+                        .loading,
                 });
             }
         },
@@ -64,9 +71,15 @@ export const useIngredientStore = create<IIngredientState>(
                     });
                 }
             } catch (error) {
+                console.error(
+                    siteConfig.errors.ingredient.create,
+                    error,
+                );
+
                 set({
                     isLoading: false,
-                    error: 'Ошибка при добавлении ингредиента',
+                    error: siteConfig.errors.ingredient
+                        .create,
                 });
             }
         },
@@ -90,9 +103,15 @@ export const useIngredientStore = create<IIngredientState>(
                     });
                 }
             } catch (error) {
+                console.error(
+                    siteConfig.errors.ingredient.delete,
+                    error,
+                );
+
                 set({
                     isLoading: false,
-                    error: 'Ошибка при удалении ингредиента',
+                    error: siteConfig.errors.ingredient
+                        .delete,
                 });
             }
         },

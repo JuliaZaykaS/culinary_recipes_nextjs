@@ -1,8 +1,11 @@
 'use client';
+
 import { signInWithCredentials } from '@/actions/sign-in';
+import { siteConfig } from '@/config/site.config';
 import { Form } from '@heroui/form';
 import { Input } from '@heroui/input';
-import { Button } from '@heroui/react';
+import { addToast, Button } from '@heroui/react';
+import { useSession } from 'next-auth/react';
 import { FormEvent, useState } from 'react';
 
 interface ILoginFormProps {
@@ -15,14 +18,25 @@ const LoginForm = (props: ILoginFormProps) => {
         email: '',
         password: '',
     });
+    const { update } = useSession();
 
     const handleSubmit = async (e: FormEvent) => {
         e.preventDefault();
 
-        await signInWithCredentials(
+        const result = await signInWithCredentials(
             formData.email,
             formData.password,
         );
+
+        if (result === siteConfig.errors.user.auth) {
+            addToast({
+                title: 'Упс...',
+                description: result,
+                color: 'danger',
+            });
+        } else {
+            await update(); // это вызовет рефетч сессии
+        }
         onClose();
     };
 
