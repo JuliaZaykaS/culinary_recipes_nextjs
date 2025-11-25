@@ -13,11 +13,12 @@ import {
 import Image from 'next/image';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import LoginModal from '@/components/ui/modals/login.modal';
-import RegistrationModal from '@/components/ui/modals/registration.modal';
+import LoginModal from '@/components/ui/modals/login';
+import RegistrationModal from '@/components/ui/modals/registration';
 import { useState } from 'react';
 import { signOutFunc } from '@/actions/sign-out';
 import { useAuthStore } from '@/store/auth';
+import Loader from '@/components/common/loader';
 
 export const Logo = () => {
     return (
@@ -114,7 +115,7 @@ export default function Header() {
                     <p>Привет, {session?.user?.email}!</p>
                 )}
                 {status === 'loading' ? (
-                    <p>Загрузка ...</p>
+                    <Loader />
                 ) : (
                     <>
                         {isAuth ? (

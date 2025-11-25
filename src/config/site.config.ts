@@ -39,6 +39,7 @@ export const siteConfig = {
                 'Пользователь с таким email уже существует',
             requiredFields: 'Email и пароль обязательны',
             incorrectData: 'Неверный ввод данных',
+            noUser: 'Пользователь не найден',
         },
         recipe: {
             loading: 'Ошибка при загрузке рецептов',
@@ -47,20 +48,28 @@ export const siteConfig = {
             delete: 'Ошибка при удалении рецепта',
             requiredFields:
                 'Имя и хотя бы один ингредиент обязательны',
+            save: 'Ошибка при сохранении рецепта',
         },
         ingredient: {
             loading: 'Ошибка при получении ингредиентов',
             create: 'Ошибка при создании ингредиента',
             delete: 'Ошибка при удалении ингредиента',
+            used: 'Нельзя удалить ингредиент: он используется в рецептах.',
         },
     },
 
     alerts: {
+        user: {
+            signInSuccess: 'Регистрация прошла успешно.',
+        },
         ingredient: {
             addIngredientSuccess:
                 'Ингредиент успешно добавлен',
             addIngredientError:
                 'Ошибка при создании ингредиента',
+        },
+        recipe: {
+            deleteSuccess: 'Рецепт удален успешно',
         },
     },
 };

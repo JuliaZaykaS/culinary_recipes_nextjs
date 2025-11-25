@@ -2,10 +2,17 @@
 
 import { Spinner } from '@heroui/react';
 
-const Loader = () => {
+interface ILoaderProps {
+    className?: string;
+}
+const Loader = (props: ILoaderProps) => {
+    const { className } = props;
     return (
         <Spinner
-            classNames={{ label: 'text-foreground mt-4' }}
+            classNames={{
+                label: 'text-foreground mt-4',
+                wrapper: className,
+            }}
             variant="wave"
             size="lg"
             color="primary"

@@ -7,4 +7,5 @@ export interface IIngredient {
     description: string | null;
     createdAt?: Date;
     updatedAt?: Date;
+    isUsed?: boolean;
 }
