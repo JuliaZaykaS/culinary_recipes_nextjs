@@ -2,6 +2,10 @@
 
 import { siteConfig } from '@/config/site.config';
 import prisma from '@/utils/prisma';
+import {
+    getIngredientsArrayFromFormData,
+    getStepsArrayFromFormData,
+} from '@/utils/recipe';
 
 export async function getRecipes() {
     try {
@@ -29,7 +33,10 @@ export async function getRecipes() {
     }
 }
 
-export async function createRecipe(formData: FormData) {
+export async function createRecipe(
+    formData: FormData,
+    userId: string,
+) {
     try {
         const name = formData.get('name') as string;
         const description = formData.get(
@@ -37,20 +44,16 @@ export async function createRecipe(formData: FormData) {
         ) as string;
         const imageUrl = formData.get('imageUrl') as string;
 
-        const ingredients = Array.from(formData.entries())
-            .filter(([key]) =>
-                key.startsWith('ingredient_'),
-            )
-            .map(([key, value]) => ({
-                ingredientId: value as string,
-                quantity: parseFloat(
-                    formData.get(
-                        `quantity_${key.split('_')[1]}`,
-                    ) as string,
-                ),
-            }));
+        const ingredients =
+            getIngredientsArrayFromFormData(formData);
 
-        if (!name || ingredients.length === 0) {
+        const steps = getStepsArrayFromFormData(formData);
+
+        if (
+            !name ||
+            ingredients.length === 0 ||
+            steps.length === 0
+        ) {
             return {
                 success: false,
                 error: siteConfig.errors.recipe
@@ -76,6 +79,8 @@ export async function createRecipe(formData: FormData) {
                         }),
                     ),
                 },
+                steps: steps.map((step) => step as string),
+                userId: userId,
             },
             // необходимо для работы со связанными таблицами
             include: {
@@ -111,20 +116,15 @@ export async function updateRecipe(
         ) as string;
         const imageUrl = formData.get('imageUrl') as string;
 
-        const ingredients = Array.from(formData.entries())
-            .filter(([key]) =>
-                key.startsWith('ingredient_'),
-            )
-            .map(([key, value]) => ({
-                ingredientId: value as string,
-                quantity: parseFloat(
-                    formData.get(
-                        `quantity_${key.split('_')[1]}`,
-                    ) as string,
-                ),
-            }));
+        const ingredients =
+            getIngredientsArrayFromFormData(formData);
+        const steps = getStepsArrayFromFormData(formData);
 
-        if (!name || ingredients.length === 0) {
+        if (
+            !name ||
+            ingredients.length === 0 ||
+            steps.length === 0
+        ) {
             return {
                 success: false,
                 error: siteConfig.errors.recipe
@@ -151,6 +151,7 @@ export async function updateRecipe(
                         }),
                     ),
                 },
+                steps: steps.map((step) => step as string),
             },
             include: {
                 ingredients: {

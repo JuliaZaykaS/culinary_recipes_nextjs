@@ -15,6 +15,13 @@ import {
     TableHeader,
     TableRow,
 } from '@heroui/react';
+import Loader from '@/components/common/loader';
+import DeleteModal from '../modals/delete';
+import { useState } from 'react';
+import {
+    getDangerToast,
+    getSuccessToast,
+} from '@/utils/toasts';
 
 function IngredientsTable() {
     const { ingredients, removeIngredient, isLoading } =
@@ -22,8 +29,17 @@ function IngredientsTable() {
 
     const { isAuth } = useAuthStore();
 
+    const [isOpen, setIsOpen] = useState(false);
+
     const handleDelete = async (id: string) => {
-        await removeIngredient(id);
+        const result = await removeIngredient(id);
+        if (result.success) {
+            getSuccessToast('Ингредиент удален успешно');
+        } else {
+            getDangerToast(
+                'Ошибка при удалении ингредиента',
+            );
+        }
     };
 
     const getCategoryLabel = (value: string) => {
@@ -62,47 +78,68 @@ function IngredientsTable() {
                 <TableColumn>Действия</TableColumn>
             </TableHeader>
             <TableBody>
-                {ingredients.map((ingredient) => (
-                    <TableRow key={ingredient.id}>
-                        <TableCell>
-                            {ingredient.name}
-                        </TableCell>
-                        <TableCell>
-                            {getCategoryLabel(
-                                ingredient.category,
-                            )}
-                        </TableCell>
-                        <TableCell>
-                            {getUnitLabel(ingredient.unit)}
-                        </TableCell>
-                        <TableCell>
-                            {ingredient.pricePerUnit !==
-                            null
-                                ? `${ingredient.pricePerUnit} ₽`
-                                : '-'}
-                        </TableCell>
-                        <TableCell>
-                            {ingredient.description || '-'}
-                        </TableCell>
-                        <TableCell>
-                            <Button
-                                color="danger"
-                                size="sm"
-                                onPress={() =>
-                                    handleDelete(
-                                        ingredient.id,
-                                    )
-                                }
-                            >
-                                Удалить
-                            </Button>
-                        </TableCell>
-                    </TableRow>
-                ))}
+                {ingredients.map((ingredient) => {
+                    return (
+                        <TableRow key={ingredient.id}>
+                            <TableCell>
+                                {ingredient.name}
+                            </TableCell>
+                            <TableCell>
+                                {getCategoryLabel(
+                                    ingredient.category,
+                                )}
+                            </TableCell>
+                            <TableCell>
+                                {getUnitLabel(
+                                    ingredient.unit,
+                                )}
+                            </TableCell>
+                            <TableCell>
+                                {ingredient.pricePerUnit !==
+                                null
+                                    ? `${ingredient.pricePerUnit} ₽`
+                                    : '-'}
+                            </TableCell>
+                            <TableCell>
+                                {ingredient.description ||
+                                    '-'}
+                            </TableCell>
+                            <TableCell>
+                                <Button
+                                    color="danger"
+                                    size="sm"
+                                    isDisabled={
+                                        ingredient.isUsed
+                                    }
+                                    onPress={() =>
+                                        setIsOpen(true)
+                                    }
+                                >
+                                    Удалить
+                                </Button>
+                                <DeleteModal
+                                    isOpen={isOpen}
+                                    onClose={() =>
+                                        setIsOpen(false)
+                                    }
+                                    onClick={() => {
+                                        handleDelete(
+                                            ingredient.id,
+                                        );
+                                        setIsOpen(false);
+                                    }}
+                                    text={
+                                        'Вы действительно хотите удалить ингредиент?'
+                                    }
+                                ></DeleteModal>
+                            </TableCell>
+                        </TableRow>
+                    );
+                })}
             </TableBody>
         </Table>
     ) : (
-        <p className="mt-4">Загрузка ...</p>
+        <Loader className="mt-4" />
     );
 }
 

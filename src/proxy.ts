@@ -49,6 +49,6 @@ export const config = {
     matcher: [
         '/ingredients',
         '/recipes/new',
-        '/recipes/:path*',
+        '/recipes/edit/:path*',
     ],
 };

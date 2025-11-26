@@ -1,12 +1,16 @@
 'use client';
 
+import { siteConfig } from '@/config/site.config';
 import {
     CATEGORY_OPTIONS,
     UNIT_OPTIONS,
 } from '@/constants/select-options';
 import { useIngredientStore } from '@/store/ingredient';
 import {
-    addToast,
+    getDangerToast,
+    getSuccessToast,
+} from '@/utils/toasts';
+import {
     Button,
     Form,
     Input,
@@ -41,21 +45,16 @@ const IngredientForm = () => {
 
             if (storeError) {
                 setError(storeError);
-                addToast({
-                    title: 'Упс...',
-                    description:
-                        'Ошибка при создании ингредиента',
-                    color: 'danger',
-                });
+                getDangerToast(
+                    siteConfig.errors.ingredient.create,
+                );
             } else {
                 setError(null);
                 setFormData(initialState);
-                addToast({
-                    title: 'Ура!!!',
-                    description:
-                        'Ингредиент успешно добавлен',
-                    color: 'success',
-                });
+                getSuccessToast(
+                    siteConfig.alerts.ingredient
+                        .addIngredientSuccess,
+                );
             }
         });
     };

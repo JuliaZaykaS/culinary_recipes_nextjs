@@ -1,20 +1,20 @@
 'use client';
 
-import { IRecipe } from '@/types/recipe';
+import type { IRecipe } from '@/types/recipe';
 import {
     Card,
     CardBody,
     CardHeader,
-    Button,
+    ScrollShadow,
+    CardFooter,
 } from '@heroui/react';
 
 import Link from 'next/link';
-import { useTransition } from 'react';
-import Image from 'next/image';
-import { useRecipeStore } from '@/store/recipe';
 import { useAuthStore } from '@/store/auth';
-import { UNIT_ABBREVIATIONS } from '@/constants/select-options';
-import { siteConfig } from '@/config/site.config';
+import { getUnitLabel } from '@/utils/ingredient';
+import RecipeImage from './recipe-image';
+import RecipeControlButtons from '../ui/buttons/RecipeControlButtons';
+import { useUserStore } from '@/store/user';
 
 interface IRecipeCardProps {
     recipe: IRecipe;
@@ -22,98 +22,70 @@ interface IRecipeCardProps {
 
 const RecipeCard = (props: IRecipeCardProps) => {
     const { recipe } = props;
-    const { removeRecipe } = useRecipeStore();
+
     const { isAuth } = useAuthStore();
-    const [isPending, startTransition] = useTransition();
-
-    const handleDelete = () => {
-        startTransition(async () => {
-            try {
-                await removeRecipe(recipe.id);
-            } catch (error) {
-                console.error(
-                    siteConfig.errors.recipe.delete,
-                    error,
-                );
-            }
-        });
-    };
-
-    const getUnitLabel = (unit: string) => {
-        const unitOption = UNIT_ABBREVIATIONS.find(
-            (option) => option.value === unit,
-        );
-        return unitOption
-            ? unitOption.label
-            : unit.toLowerCase();
-    };
+    const { user } = useUserStore();
 
     return (
         <Card className="w-full min-w-[254px] max-w-md h-[480px] flex flex-col">
-            <div className="h-48 overflow-hidden">
-                {recipe.imageUrl ? (
-                    <div className="relative h-48 group overflow-hidden rounded-lg border border-gray-200 bg-white shadow-md transition-all hover:shadow-lg">
-                        <Image
-                            src={recipe.imageUrl}
-                            alt="Image for recipe"
-                            fill
-                            className="object-cover transition-transform duration-300 group-hover:scale-105"
-                        />
-                    </div>
-                ) : (
-                    <div className="w-full h-full bg-gray-200 flex items-center justify-center">
-                        <span className="text-gray-500">
-                            Нет изображения
-                        </span>
-                    </div>
-                )}
-            </div>
+            <Link href={`/recipes/${recipe.id}`}>
+                <RecipeImage imgUrl={recipe.imageUrl} />
 
-            <CardHeader className="flex justify-between items-center text-black">
-                <h2 className="text-xl font-bold">
-                    {recipe.name}
-                </h2>
-            </CardHeader>
+                <CardHeader className="flex justify-between items-center text-black">
+                    <h2 className="text-xl font-bold">
+                        {recipe.name}
+                    </h2>
+                </CardHeader>
 
-            <CardBody className="flex-1 text-black">
-                <p className="text-gray-600 line-clamp-6 overflow-hidden text-ellipsis whitespace-nowrap min-h-[25px] max-h-[30px]">
-                    {recipe.description || 'Без описания'}
-                </p>
-                <h3 className="mt-4 font-semibold">
-                    Ингредиенты:
-                </h3>
-                <ul className="list-disc pl-5 overflow-y-auto max-h-24">
-                    {recipe.ingredients.map((ing) => (
-                        <li key={ing.id}>
-                            {ing.ingredient.name}:{' '}
-                            {ing.quantity}{' '}
-                            {getUnitLabel(
-                                ing.ingredient.unit,
-                            )}
-                        </li>
-                    ))}
-                </ul>
-            </CardBody>
-
-            {isAuth && (
-                <div className="flex justify-end gap-2 p-4">
-                    <Link href={`/recipes/${recipe.id}`}>
-                        <Button
-                            color="primary"
-                            variant="light"
-                        >
-                            Редактировать
-                        </Button>
-                    </Link>
-                    <Button
-                        color="danger"
-                        variant="light"
-                        onPress={handleDelete}
-                        isLoading={isPending}
+                <CardBody className="flex-1 text-black">
+                    <p className="text-gray-600 line-clamp-6 overflow-hidden text-ellipsis whitespace-nowrap min-h-[25px] max-h-[30px]">
+                        {recipe.description ||
+                            'Без описания'}
+                    </p>
+                    <h3 className="mt-4 font-semibold">
+                        Ингредиенты:
+                    </h3>
+                    <ScrollShadow
+                        className="max-h-24"
+                        hideScrollBar
                     >
-                        Удалить
-                    </Button>
-                </div>
+                        <ul className="list-disc pl-5">
+                            {recipe.ingredients.map(
+                                (ing) => (
+                                    <li
+                                        key={ing.id}
+                                        className="space-x-2"
+                                    >
+                                        <span>
+                                            {
+                                                ing
+                                                    .ingredient
+                                                    .name
+                                            }
+                                            :
+                                        </span>
+
+                                        <span>
+                                            {ing.quantity}
+                                        </span>
+                                        <span>
+                                            {getUnitLabel(
+                                                ing
+                                                    .ingredient
+                                                    .unit,
+                                            )}
+                                        </span>
+                                    </li>
+                                ),
+                            )}
+                        </ul>
+                    </ScrollShadow>
+                </CardBody>
+            </Link>
+            {isAuth && user?.id === recipe.userId && (
+                <CardFooter className="mt-auto p-0 pb-3 pl-3 pr-3">
+                    <RecipeControlButtons recipe={recipe} />
+                </CardFooter>
             )}
         </Card>
     );

@@ -56,8 +56,22 @@ export async function createIngredient(formData: FormData) {
 export async function getIngredients() {
     try {
         const ingredients =
-            await prisma.ingredient.findMany();
-        return { success: true, ingredients };
+            await prisma.ingredient.findMany({
+                include: {
+                    recipes: {
+                        select: { id: true },
+                    },
+                },
+            });
+        const updIngredients = ingredients.map((i) => ({
+            ...i,
+            isUsed: i.recipes.length > 0,
+        }));
+
+        return {
+            success: true,
+            ingredients: updIngredients,
+        };
     } catch (error) {
         console.error(
             siteConfig.errors.ingredient.loading,

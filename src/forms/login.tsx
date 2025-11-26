@@ -2,9 +2,10 @@
 
 import { signInWithCredentials } from '@/actions/sign-in';
 import { siteConfig } from '@/config/site.config';
+import { getDangerToast } from '@/utils/toasts';
 import { Form } from '@heroui/form';
 import { Input } from '@heroui/input';
-import { addToast, Button } from '@heroui/react';
+import { Button } from '@heroui/react';
 import { useSession } from 'next-auth/react';
 import { FormEvent, useState } from 'react';
 
@@ -29,11 +30,7 @@ const LoginForm = (props: ILoginFormProps) => {
         );
 
         if (result === siteConfig.errors.user.auth) {
-            addToast({
-                title: 'Упс...',
-                description: result,
-                color: 'danger',
-            });
+            getDangerToast(result);
         } else {
             await update(); // это вызовет рефетч сессии
         }

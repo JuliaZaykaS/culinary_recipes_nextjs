@@ -1,10 +1,15 @@
 'use client';
 import { registerUser } from '@/actions/register';
+import { siteConfig } from '@/config/site.config';
 import { IFormData } from '@/types/form-data';
+import {
+    getDangerToast,
+    getSuccessToast,
+} from '@/utils/toasts';
 
 import { Form } from '@heroui/form';
 import { Input } from '@heroui/input';
-import { addToast, Button } from '@heroui/react';
+import { Button } from '@heroui/react';
 import { FormEvent, useState } from 'react';
 
 interface IRegistrationFormProps {
@@ -32,17 +37,11 @@ const RegistrationForm = (
         const result = await registerUser(formData);
 
         if (result.hasOwnProperty('error')) {
-            addToast({
-                title: 'Упс...',
-                description: 'Ошибка при регистрации',
-                color: 'danger',
-            });
+            getDangerToast(siteConfig.errors.user.signIn);
         } else {
-            addToast({
-                title: 'Ура!!!',
-                description: 'Регистрация прошла успешно.',
-                color: 'success',
-            });
+            getSuccessToast(
+                siteConfig.alerts.user.signInSuccess,
+            );
         }
 
         onClose();
