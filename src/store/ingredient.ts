@@ -7,13 +7,18 @@ import { siteConfig } from '@/config/site.config';
 import { IIngredient } from '@/types/ingredient';
 import { create } from 'zustand';
 
+interface IActionResult {
+    success: boolean;
+}
 interface IIngredientState {
     ingredients: IIngredient[];
     isLoading: boolean;
     error: string | null;
     loadIngredients: () => Promise<void>;
     addIngredient: (formData: FormData) => Promise<void>;
-    removeIngredient: (id: string) => Promise<void>;
+    removeIngredient: (
+        id: string,
+    ) => Promise<IActionResult>;
 }
 
 export const useIngredientStore = create<IIngredientState>(
@@ -96,11 +101,13 @@ export const useIngredientStore = create<IIngredientState>(
                                     ingredient.id !== id,
                             ),
                     }));
+                    return { success: true };
                 } else {
                     set({
                         isLoading: false,
                         error: result.error,
                     });
+                    return { success: false };
                 }
             } catch (error) {
                 console.error(
@@ -113,6 +120,7 @@ export const useIngredientStore = create<IIngredientState>(
                     error: siteConfig.errors.ingredient
                         .delete,
                 });
+                return { success: false };
             }
         },
     }),

@@ -21,12 +21,13 @@ interface IRecipeState {
     loadRecipes: () => Promise<void>;
     addRecipe: (
         formData: FormData,
+        userId: string,
     ) => Promise<IActionResult>;
     updateRecipe: (
         id: string,
         formData: FormData,
     ) => Promise<IActionResult>;
-    removeRecipe: (id: string) => Promise<void>;
+    removeRecipe: (id: string) => Promise<IActionResult>;
 }
 
 export const useRecipeStore = create<IRecipeState>(
@@ -60,10 +61,16 @@ export const useRecipeStore = create<IRecipeState>(
                 });
             }
         },
-        addRecipe: async (formData: FormData) => {
+        addRecipe: async (
+            formData: FormData,
+            userId: string,
+        ) => {
             set({ isLoading: true, error: null });
             try {
-                const result = await createRecipe(formData);
+                const result = await createRecipe(
+                    formData,
+                    userId,
+                );
                 if (result.success) {
                     set((state) => ({
                         recipes: [
@@ -161,11 +168,13 @@ export const useRecipeStore = create<IRecipeState>(
                             (recipe) => recipe.id !== id,
                         ),
                     }));
+                    return { success: true };
                 } else {
                     set({
                         isLoading: false,
                         error: result.error,
                     });
+                    return { success: false };
                 }
             } catch (error) {
                 console.error(
@@ -176,6 +185,7 @@ export const useRecipeStore = create<IRecipeState>(
                     isLoading: false,
                     error: siteConfig.errors.recipe.delete,
                 });
+                return { success: false };
             }
         },
     }),

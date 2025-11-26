@@ -3,6 +3,7 @@ import {
     Modal,
     ModalBody,
     ModalContent,
+    ModalFooter,
     ModalHeader,
 } from '@heroui/modal';
 import { ReactNode } from 'react';
@@ -13,11 +14,18 @@ interface ICustomModalProps {
     title: string;
     children: ReactNode;
     size?: 'xs' | 'sm' | 'md' | 'lg' | 'xl';
+    footer?: ReactNode;
 }
 
 const CustomModal = (props: ICustomModalProps) => {
-    const { isOpen, onClose, title, children, size } =
-        props;
+    const {
+        isOpen,
+        onClose,
+        title,
+        children,
+        size,
+        footer,
+    } = props;
     return (
         <Modal
             isOpen={isOpen}
@@ -33,6 +41,9 @@ const CustomModal = (props: ICustomModalProps) => {
                 <ModalBody className="space-y-4 py-6">
                     {children}
                 </ModalBody>
+                {footer && (
+                    <ModalFooter>{footer}</ModalFooter>
+                )}
             </ModalContent>
         </Modal>
     );

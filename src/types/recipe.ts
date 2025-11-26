@@ -13,6 +13,8 @@ export interface IRecipe {
     description: string;
     imageUrl?: string | null;
     ingredients: IRecipeIngredient[];
+    steps: string[];
     createdAt?: Date;
     updatedAt?: Date;
+    userId: string | null;
 }

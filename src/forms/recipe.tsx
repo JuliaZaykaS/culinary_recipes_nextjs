@@ -7,12 +7,16 @@ import {
     Input,
     Select,
     SelectItem,
+    Textarea,
+    Tooltip,
 } from '@heroui/react';
 
 import { IRecipe } from '@/types/recipe';
 import { useRouter } from 'next/navigation';
 import { useIngredientStore } from '@/store/ingredient';
 import { useRecipeStore } from '@/store/recipe';
+import { useUserStore } from '@/store/user';
+import { siteConfig } from '@/config/site.config';
 
 interface IRecipeFormProps {
     initialRecipe?: IRecipe;
@@ -22,6 +26,11 @@ interface IIngredientField {
     id: number;
     ingredientId: string;
     quantity: number | null;
+}
+
+interface IStepField {
+    id: number;
+    step: string;
 }
 
 const initialState = {
@@ -62,10 +71,26 @@ const RecipeForm = (props: IRecipeFormProps) => {
                       },
                   ],
         );
+    const [stepsFields, setStepsFields] = useState<
+        IStepField[]
+    >(
+        initialRecipe?.steps
+            ? initialRecipe.steps.map((step, idx) => ({
+                  id: idx,
+                  step: step,
+              }))
+            : [
+                  {
+                      id: 0,
+                      step: '',
+                  },
+              ],
+    );
 
     const { ingredients } = useIngredientStore();
     const { addRecipe, updateRecipe } = useRecipeStore();
     const [isPending, startTransition] = useTransition();
+    const { user } = useUserStore();
 
     const router = useRouter();
 
@@ -104,16 +129,49 @@ const RecipeForm = (props: IRecipeFormProps) => {
         );
     };
 
+    const handleAddStepField = () => {
+        if (stepsFields.length < 20) {
+            setStepsFields([
+                ...stepsFields,
+                {
+                    id: stepsFields.length,
+                    step: '',
+                },
+            ]);
+        }
+    };
+
+    const handleRemoveStepField = (id: number) => {
+        if (stepsFields.length > 1) {
+            setStepsFields(
+                stepsFields.filter(
+                    (field) => field.id !== id,
+                ),
+            );
+        }
+    };
+
+    const handleStepChange = (
+        id: number,
+        value: string,
+    ) => {
+        setStepsFields(
+            stepsFields.map((f) =>
+                f.id === id ? { ...f, step: value } : f,
+            ),
+        );
+    };
+
     const handleSubmit = async (formData: FormData) => {
         startTransition(async () => {
             setError(null);
-
+            if (!user?.id) return;
             const result = initialRecipe
                 ? await updateRecipe(
                       initialRecipe.id,
                       formData,
                   )
-                : await addRecipe(formData);
+                : await addRecipe(formData, user?.id);
 
             if (result.success) {
                 setIngredientFields([
@@ -128,7 +186,7 @@ const RecipeForm = (props: IRecipeFormProps) => {
             } else {
                 setError(
                     result.error ||
-                        'Ошибка при сохранении рецепта',
+                        siteConfig.errors.recipe.save,
                 );
             }
         });
@@ -195,6 +253,7 @@ const RecipeForm = (props: IRecipeFormProps) => {
             />
 
             <div className="space-y-2 w-full">
+                <h3>Список ингредиентов</h3>
                 {ingredientFields.map((field, index) => (
                     <div
                         key={field.id}
@@ -271,30 +330,123 @@ const RecipeForm = (props: IRecipeFormProps) => {
                             }
                         />
                         {ingredientFields.length > 1 && (
-                            <Button
-                                color="danger"
-                                variant="light"
-                                onPress={() =>
-                                    handleRemoveIngredientField(
-                                        field.id,
-                                    )
-                                }
-                                className="w-[50px]"
+                            <Tooltip
+                                className="capitalize"
+                                color={'danger'}
+                                content={'Удалить'}
+                                placement={'right-end'}
                             >
-                                -
-                            </Button>
+                                <Button
+                                    color="danger"
+                                    variant="light"
+                                    onPress={() =>
+                                        handleRemoveIngredientField(
+                                            field.id,
+                                        )
+                                    }
+                                    className="w-[50px]"
+                                >
+                                    -
+                                </Button>
+                            </Tooltip>
                         )}
                     </div>
                 ))}
 
                 {ingredientFields.length < 10 && (
-                    <Button
-                        color="primary"
-                        variant="flat"
-                        onPress={handleAddIngredientField}
+                    <Tooltip
+                        className="capitalize"
+                        color={'primary'}
+                        content={'Добавить'}
+                        placement={'left-start'}
                     >
-                        +
-                    </Button>
+                        <Button
+                            color="primary"
+                            variant="flat"
+                            onPress={
+                                handleAddIngredientField
+                            }
+                        >
+                            +
+                        </Button>
+                    </Tooltip>
+                )}
+            </div>
+            <div className="space-y-2 w-full">
+                <h3>Инструкция приготовления</h3>
+                <ol className="w-full space-y-2">
+                    {stepsFields.map((step, index) => (
+                        <li
+                            key={index}
+                            className="flex gap-2 items-center"
+                        >
+                            <Textarea
+                                isRequired
+                                minRows={2}
+                                name={`step_${index}`}
+                                placeholder={`Шаг ${
+                                    index + 1
+                                }`}
+                                type="text"
+                                value={step.step}
+                                classNames={{
+                                    inputWrapper:
+                                        'bg-default-100 w-full h-auto',
+                                    input: 'text-sm focus:outline-none',
+                                }}
+                                className="w-full"
+                                onChange={(e) =>
+                                    handleStepChange(
+                                        step.id,
+                                        e.target.value,
+                                    )
+                                }
+                                validate={(value) =>
+                                    !value
+                                        ? 'Шаг не может быть пустым'
+                                        : null
+                                }
+                            />
+                            {stepsFields.length > 1 && (
+                                <Tooltip
+                                    className="capitalize"
+                                    color={'danger'}
+                                    content={'Удалить'}
+                                    placement={'right-end'}
+                                >
+                                    <Button
+                                        color="danger"
+                                        variant="light"
+                                        onPress={() =>
+                                            handleRemoveStepField(
+                                                step.id,
+                                            )
+                                        }
+                                        className="w-[50px]"
+                                    >
+                                        -
+                                    </Button>
+                                </Tooltip>
+                            )}
+                        </li>
+                    ))}
+                </ol>
+
+                {stepsFields.length < 20 && (
+                    <Tooltip
+                        className="capitalize"
+                        color={'primary'}
+                        content={'Добавить'}
+                        placement={'left-start'}
+                    >
+                        <Button
+                            color="primary"
+                            variant="flat"
+                            onPress={handleAddStepField}
+                        >
+                            +
+                        </Button>
+                    </Tooltip>
                 )}
             </div>
 
