@@ -26,4 +26,5 @@ npm run dev - запуск проекта в dev режиме
 
 ## Ссылка на приложение [culinary-recipes-nextjs.vercel.app](https://culinary-recipes-nextjs.vercel.app/)
 
----
+## Примечание
+Разрешены ссылки на изображения с сайта eda.ru
